@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ElectricFox.Epaper.Rendering\ElectricFox.Epaper.Rendering.csproj" />
+    <ProjectReference Include="..\ElectricFox.HomeAssistantClient\ElectricFox.HomeAssistant.csproj" />
+    <ProjectReference Include="..\ElectricFox.OpenWeather\ElectricFox.OpenWeather.csproj" />
+  </ItemGroup>
+
+</Project>
