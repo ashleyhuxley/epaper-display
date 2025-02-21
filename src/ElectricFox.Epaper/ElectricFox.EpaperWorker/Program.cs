@@ -24,7 +24,7 @@ namespace ElectricFox.EpaperWorker
             LogManager.Setup().LoadConfigurationFromAppSettings();
 
             var logger = LogManager.GetCurrentClassLogger();
-            logger.Debug("Initialising ServiceFox");
+            logger.Debug("Initialising Epaper Display Worker");
 
             var builder = Host.CreateApplicationBuilder(args);
 
