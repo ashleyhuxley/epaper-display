@@ -144,7 +144,8 @@ namespace ElectricFox.Epaper.Rendering
             _image.DrawTextBdf(
                 $"{data.WindSpeed:0}mph",
                 _assets.Tamzen7x14b,
-                new Point(pos.X + 155, pos.Y + 23)
+                new Point(pos.X + 155, pos.Y + 23),
+                data.WindSpeed > 10 ? Color.Red : Color.Black
             );
         }
 
@@ -222,7 +223,7 @@ namespace ElectricFox.Epaper.Rendering
                 _image.DrawTextBdf(room.RoomName, _assets.Spleen8x16, new Point(pos.X + 5, y));
 
                 var tempColour =
-                    room.Temperature < (_state.ThermostatTemp - 2) ? Color.Red : Color.Black;
+                    room.Temperature < (_state.ThermostatTemp - 1.5) ? Color.Red : Color.Black;
                 var humColour = room.Humidity > 60 ? Color.Red : Color.Black;
 
                 _image.DrawTextBdf(
@@ -288,7 +289,7 @@ namespace ElectricFox.Epaper.Rendering
                 color
             );
             _image.DrawTextBdf(
-                $"{_state.ThermostatTemp:0.0}°C",
+                $"{_state.CurrentOutsideTemp:0.0}°C",
                 _assets.WinCrox5hb,
                 new Point(pos.X + 155, pos.Y + 2)
             );

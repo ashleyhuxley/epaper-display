@@ -79,6 +79,9 @@ namespace ElectricFox.Epaper.Data
                 state.OutsideTempHistory.Add(outdoorTemp);
             }
 
+
+            state.CurrentOutsideTemp = Convert.ToSingle(state.OutsideTempHistory.Last().Temperature);
+
             // Rooms
             _logger.LogDebug("Getting room states");
             foreach (var room in Room.AllRooms)
