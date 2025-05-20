@@ -78,8 +78,8 @@ namespace ElectricFox.Epaper.Rendering
                 ctx.DrawImage(image, new Point(pos.X + 120, pos.Y), 1);
             }
 
-            _image.DrawTextBdf($"--°C", _assets.WinCrox5hb, new Point(pos.X + 35, pos.Y + 2));
-            _image.DrawTextBdf($"--°C", _assets.WinCrox5hb, new Point(pos.X + 155, pos.Y + 2));
+            _image.DrawTextBdf($"{_state.PoolTemp:0.0}°C", _assets.WinCrox5hb, new Point(pos.X + 35, pos.Y + 2));
+            _image.DrawTextBdf($"{_state.HotWaterTemp:0.0}°C", _assets.WinCrox5hb, new Point(pos.X + 155, pos.Y + 2));
         }
 
         private void RenderFirefly(Point pos)

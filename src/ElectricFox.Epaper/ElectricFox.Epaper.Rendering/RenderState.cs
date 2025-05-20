@@ -40,6 +40,8 @@ namespace ElectricFox.Epaper.Rendering
         public float ThermostatTemp { get; set; } = 0;
         public float CurrentOutsideTemp { get; set; } = 0;
         public bool HeatingOn { get; set; }
+        public float PoolTemp { get; set; } = 0;
+        public float HotWaterTemp { get; set; } = 0;
 
         public bool IsNight { get; set; }
 

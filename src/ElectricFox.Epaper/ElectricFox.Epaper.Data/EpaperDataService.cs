@@ -6,6 +6,7 @@ using ElectricFox.HomeAssistant;
 using ElectricFox.OpenWeather;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using static ElectricFox.Epaper.Rendering.RenderState;
 
 namespace ElectricFox.Epaper.Data
 {
@@ -43,6 +44,26 @@ namespace ElectricFox.Epaper.Data
             var state = new RenderState();
 
             _logger.LogInformation("Getting render state");
+
+            // Pool Temperature
+            var poolTemp = await _haClient
+                .GetSensorState(SensorId.PoolTemp, stoppingToken)
+                .ConfigureAwait(false);
+
+            if (float.TryParse(poolTemp?.State, out var temperatureValue))
+            {
+                state.PoolTemp = temperatureValue;
+            }
+
+            // Hot Water Temp
+            var hotWaterClimate = await _haClient
+                .GetClimate(SensorId.HotWaterTemp, stoppingToken)
+                .ConfigureAwait(false);
+
+            if (hotWaterClimate is not null)
+            {
+                state.HotWaterTemp = Convert.ToSingle(hotWaterClimate.Attributes.CurrentTemperature);
+            }
 
             // Day/Night
             _logger.LogDebug("Getting Day/Night state");
