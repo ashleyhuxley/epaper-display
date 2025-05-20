@@ -34,16 +34,7 @@ namespace ElectricFox.Epaper.Rendering
 
         public enum AlarmState { Disarmed, ArmedHome, ArmedAway }
 
-        public string Date
-        {
-            get
-            {
-                var now = DateTime.Now;
-                return $"{now:dddd} {now.Day}{GetDaySuffix(now.Day)} {now:MMMM}";
-            }
-        }
-
-        public string Time => DateTime.Now.ToString("HH:mm");
+        public Instant DateTime => SystemClock.Instance.GetCurrentInstant();
 
         public float CurrentTemp { get; set; } = 0;
         public float ThermostatTemp { get; set; } = 0;
@@ -56,25 +47,6 @@ namespace ElectricFox.Epaper.Rendering
         public bool IsArmed => Alarm != AlarmState.Disarmed;
 
         public string Bins { get; set; } = "Unknown";
-
-        private string GetDaySuffix(int day)
-        {
-            switch (day)
-            {
-                case 1:
-                case 21:
-                case 31:
-                    return "st";
-                case 2:
-                case 22:
-                    return "nd";
-                case 3:
-                case 23:
-                    return "rd";
-                default:
-                    return "th";
-            }
-        }
 
         public float GetTemperatureAt(DateTime dateTime, bool isIndoor = true)
         {

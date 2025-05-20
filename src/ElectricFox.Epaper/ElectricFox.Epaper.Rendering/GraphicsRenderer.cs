@@ -4,6 +4,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using static ElectricFox.Epaper.Rendering.RenderState;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ElectricFox.Epaper.Rendering
 {
@@ -311,8 +312,29 @@ namespace ElectricFox.Epaper.Rendering
 
         private void RenderDateAndTime(Point pos)
         {
-            _image.DrawTextBdf(_state.Date, _assets.Spleen8x16, new Point(pos.X, pos.Y));
-            _image.DrawTextBdf(_state.Time, _assets.Spleen8x16, new Point(pos.X + 200, pos.Y));
+            var localDate = _state.DateTime.InZone(_timeZone).LocalDateTime;
+
+            _image.DrawTextBdf($"{localDate:dddd} {localDate.Day}{GetDaySuffix(localDate.Day)} {localDate:MMMM}", _assets.Spleen8x16, new Point(pos.X, pos.Y));
+            _image.DrawTextBdf($"{localDate:HHmm}", _assets.Spleen8x16, new Point(pos.X + 200, pos.Y));
+        }
+
+        private string GetDaySuffix(int day)
+        {
+            switch (day)
+            {
+                case 1:
+                case 21:
+                case 31:
+                    return "st";
+                case 2:
+                case 22:
+                    return "nd";
+                case 3:
+                case 23:
+                    return "rd";
+                default:
+                    return "th";
+            }
         }
 
         private void RenderTemperatureChart(IImageProcessingContext ctx, PointF pos)
