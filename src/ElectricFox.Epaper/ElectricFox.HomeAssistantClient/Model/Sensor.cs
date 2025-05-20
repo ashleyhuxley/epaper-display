@@ -1,4 +1,5 @@
 ﻿using NodaTime;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace ElectricFox.HomeAssistant.Model
@@ -24,7 +25,7 @@ namespace ElectricFox.HomeAssistant.Model
         public string? State { get; set; }
 
         [JsonPropertyName("attributes")]
-        public Dictionary<string, object>? Attributes { get; set; }
+        public Dictionary<string, JsonElement>? Attributes { get; set; }
 
         [JsonPropertyName("last_changed")]
         public OffsetDateTime LastChanged { get; set; }

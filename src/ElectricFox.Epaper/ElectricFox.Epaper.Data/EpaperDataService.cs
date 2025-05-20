@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using ElectricFox.Epaper.Rendering;
 using ElectricFox.HomeAssistant;
@@ -104,10 +105,17 @@ namespace ElectricFox.Epaper.Data
                 .ConfigureAwait(false);
             if (bins?.Attributes is not null && bins.Attributes.Any())
             {
-                var firstAttribute = bins.Attributes.OrderBy(b => b.Key).FirstOrDefault();
-                if (firstAttribute.Value is JsonElement element)
+                var dateEntry = bins?.Attributes
+                    .FirstOrDefault(prop => DateTime.TryParseExact(
+                    prop.Key, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _));
+
+                if (dateEntry.HasValue)
                 {
-                    state.Bins = element.GetString() ?? SensorConstant.Unknown;
+                    state.Bins = dateEntry.Value.Value.GetString();
+                }
+                else
+                {
+                    state.Bins = SensorConstant.Unknown;
                 }
             }
 
@@ -203,12 +211,28 @@ namespace ElectricFox.Epaper.Data
             var temperature = await _haClient
                 .GetSensorState(temperatureId, stoppingToken)
                 .ConfigureAwait(false);
-            roomState.Temperature = Convert.ToSingle(temperature?.State);
+
+            if (float.TryParse(temperature?.State, out var temperatureValue))
+            {
+                roomState.Temperature = temperatureValue;
+            }
+            else
+            {
+                roomState.Temperature = 0;
+            }
 
             var humidity = await _haClient
                 .GetSensorState(humidityId, stoppingToken)
                 .ConfigureAwait(false);
-            roomState.Humidity = Convert.ToSingle(humidity?.State);
+
+            if (float.TryParse(humidity?.State, out var humidityValue))
+            {
+                roomState.Humidity = humidityValue;
+            }
+            else
+            {
+                roomState.Humidity = 0;
+            }
 
             return roomState;
         }

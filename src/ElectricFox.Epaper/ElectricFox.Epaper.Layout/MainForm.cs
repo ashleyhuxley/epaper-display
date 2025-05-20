@@ -67,7 +67,7 @@ namespace ElectricFox.Epaper.Layout
                 imageSharpImage.SaveAsPng(ms);
                 ms.Seek(0, SeekOrigin.Begin);
 
-                Bitmap bitmap = new (ms);
+                Bitmap bitmap = new(ms);
 
                 layout2.Image = bitmap;
             }
@@ -133,6 +133,30 @@ namespace ElectricFox.Epaper.Layout
                 CancellationToken.None
             );
             propertyGrid.SelectedObject = _renderState;
+        }
+
+        private void LoadImageButtonClick(object sender, EventArgs e)
+        {
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    using (var image = SixLabors.ImageSharp.Image.Load<Rgba32>(openFileDialog.FileName))
+                    {
+                        ShowImageInPictureBox(image);
+                        pictureData = image.GetPixelData().GetAllData().ToArray();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        ex.Message,
+                        "Failed to load image",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                }
+            }
         }
     }
 }

@@ -402,39 +402,7 @@ namespace ElectricFox.Epaper.Rendering
 
         public PaperData GetPixelData()
         {
-            var data = new PaperData();
-
-            _image.ProcessPixelRows(pixelAccessor =>
-            {
-                for (int y = 0; y < pixelAccessor.Height; y++)
-                {
-                    Span<Rgba32> row = pixelAccessor.GetRowSpan(y);
-
-                    for (int x = 0; x < row.Length; x++)
-                    {
-                        var color = row[x];
-
-                        var x1 = y;
-                        var y1 = row.Length - x;
-
-                        var index = (y1 * (792 / 8)) + (x1 / 8);
-                        var offset = x1 % 8;
-
-                        const int threshold = 253;
-
-                        if (color.R > threshold && color.G < threshold && color.B < threshold)
-                        {
-                            data.Red[index] &= (byte)~(0x80 >> offset);
-                        }
-                        else if (color.R < threshold && color.G < threshold && color.B < threshold)
-                        {
-                            data.Black[index] &= (byte)~(0x80 >> offset);
-                        }
-                    }
-                }
-            });
-
-            return data;
+            return _image.GetPixelData();
         }
 
         public Image<Rgba32> GetImage()

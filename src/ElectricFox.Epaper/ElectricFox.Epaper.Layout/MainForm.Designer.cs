@@ -33,15 +33,18 @@
             renderButton = new Button();
             getDataButton = new Button();
             propertyGrid = new PropertyGrid();
+            loadImageButton = new Button();
+            openFileDialog = new OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)layout2).BeginInit();
             SuspendLayout();
             // 
             // layout2
             // 
             layout2.BackColor = Color.White;
-            layout2.Location = new Point(12, 11);
+            layout2.Location = new Point(21, 22);
+            layout2.Margin = new Padding(5, 6, 5, 6);
             layout2.Name = "layout2";
-            layout2.Size = new Size(272, 792);
+            layout2.Size = new Size(466, 1584);
             layout2.TabIndex = 3;
             layout2.TabStop = false;
             layout2.MouseMove += LayoutMouseMove;
@@ -49,9 +52,10 @@
             // sendButton
             // 
             sendButton.Enabled = false;
-            sendButton.Location = new Point(290, 70);
+            sendButton.Location = new Point(497, 140);
+            sendButton.Margin = new Padding(5, 6, 5, 6);
             sendButton.Name = "sendButton";
-            sendButton.Size = new Size(97, 23);
+            sendButton.Size = new Size(166, 46);
             sendButton.TabIndex = 4;
             sendButton.Text = "Send to Display";
             sendButton.UseVisualStyleBackColor = true;
@@ -60,9 +64,10 @@
             // renderButton
             // 
             renderButton.Enabled = false;
-            renderButton.Location = new Point(290, 41);
+            renderButton.Location = new Point(497, 82);
+            renderButton.Margin = new Padding(5, 6, 5, 6);
             renderButton.Name = "renderButton";
-            renderButton.Size = new Size(97, 23);
+            renderButton.Size = new Size(166, 46);
             renderButton.TabIndex = 5;
             renderButton.Text = "Render";
             renderButton.UseVisualStyleBackColor = true;
@@ -70,9 +75,10 @@
             // 
             // getDataButton
             // 
-            getDataButton.Location = new Point(290, 12);
+            getDataButton.Location = new Point(497, 24);
+            getDataButton.Margin = new Padding(5, 6, 5, 6);
             getDataButton.Name = "getDataButton";
-            getDataButton.Size = new Size(97, 23);
+            getDataButton.Size = new Size(166, 46);
             getDataButton.TabIndex = 6;
             getDataButton.Text = "Get Data";
             getDataButton.UseVisualStyleBackColor = true;
@@ -80,22 +86,35 @@
             // 
             // propertyGrid
             // 
-            propertyGrid.Location = new Point(290, 110);
+            propertyGrid.Location = new Point(497, 220);
+            propertyGrid.Margin = new Padding(5, 6, 5, 6);
             propertyGrid.Name = "propertyGrid";
-            propertyGrid.Size = new Size(347, 656);
+            propertyGrid.Size = new Size(595, 1312);
             propertyGrid.TabIndex = 7;
+            // 
+            // loadImageButton
+            // 
+            loadImageButton.Location = new Point(671, 82);
+            loadImageButton.Name = "loadImageButton";
+            loadImageButton.Size = new Size(216, 46);
+            loadImageButton.TabIndex = 8;
+            loadImageButton.Text = "Load Image...";
+            loadImageButton.UseVisualStyleBackColor = true;
+            loadImageButton.Click += LoadImageButtonClick;
             // 
             // MainForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(12F, 30F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(666, 820);
+            ClientSize = new Size(1142, 1640);
+            Controls.Add(loadImageButton);
             Controls.Add(propertyGrid);
             Controls.Add(getDataButton);
             Controls.Add(renderButton);
             Controls.Add(sendButton);
             Controls.Add(layout2);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Margin = new Padding(5, 6, 5, 6);
             MaximizeBox = false;
             Name = "MainForm";
             Text = "ePaper Layout";
@@ -110,5 +129,7 @@
         private Button renderButton;
         private Button getDataButton;
         private PropertyGrid propertyGrid;
+        private Button loadImageButton;
+        private OpenFileDialog openFileDialog;
     }
 }
