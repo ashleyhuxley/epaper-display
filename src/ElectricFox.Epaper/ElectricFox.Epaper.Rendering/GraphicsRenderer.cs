@@ -315,7 +315,7 @@ namespace ElectricFox.Epaper.Rendering
             var localDate = _state.DateTime.InZone(_timeZone).LocalDateTime;
 
             _image.DrawTextBdf($"{localDate:dddd} {localDate.Day}{GetDaySuffix(localDate.Day)} {localDate:MMMM}", _assets.Spleen8x16, new Point(pos.X, pos.Y));
-            _image.DrawTextBdf($"{localDate:HHmm}", _assets.Spleen8x16, new Point(pos.X + 200, pos.Y));
+            _image.DrawTextBdf($"{localDate:HH:mm}", _assets.Spleen8x16, new Point(pos.X + 200, pos.Y));
         }
 
         private string GetDaySuffix(int day)
