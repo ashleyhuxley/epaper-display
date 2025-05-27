@@ -46,6 +46,7 @@ namespace ElectricFox.Epaper.Data
             _logger.LogInformation("Getting render state");
 
             // Pool Temperature
+            _logger.LogDebug("Getting pool temp");
             var poolTemp = await _haClient
                 .GetSensorState(SensorId.PoolTemp, stoppingToken)
                 .ConfigureAwait(false);
@@ -56,6 +57,7 @@ namespace ElectricFox.Epaper.Data
             }
 
             // Hot Water Temp
+            _logger.LogDebug("Getting hot water temp");
             var hotWaterClimate = await _haClient
                 .GetClimate(SensorId.HotWaterTemp, stoppingToken)
                 .ConfigureAwait(false);
