@@ -51,31 +51,41 @@ namespace ElectricFox.EpaperWorker
             {
                 _logger.LogInformation("Gathering data...");
 
-                var state = await _epaperDataService.GetRenderStateAsync(
-                    _openWeatherOptions.Latitude,
-                    _openWeatherOptions.Longitude,
-                    stoppingToken
-                );
-
-                using (var renderer = new GraphicsRenderer(_assets, _timeZone))
+                try
                 {
-                    try
-                    {
-                        _logger.LogInformation("Rendering...");
-                        renderer.Render(state);
-                        var data = renderer.GetPixelData().GetAllData().ToArray();
+                    var state = await _epaperDataService.GetRenderStateAsync(
+                        _openWeatherOptions.Latitude,
+                        _openWeatherOptions.Longitude,
+                        stoppingToken
+                    );
 
-                        _logger.LogInformation("Sending to display...");
-                        await _epaperSocketClient.SendImage(data);
-                        _logger.LogInformation("Display cycle complete.");
-                    }
-                    catch (Exception ex)
+                    using (var renderer = new GraphicsRenderer(_assets, _timeZone))
                     {
-                        _logger.LogError(ex, "Error rendering ePaper");
+                        try
+                        {
+                            _logger.LogInformation("Rendering...");
+                            renderer.Render(state);
+                            var data = renderer.GetPixelData().GetAllData().ToArray();
+
+                            _logger.LogInformation("Sending to display...");
+                            await _epaperSocketClient.SendImage(data);
+                            _logger.LogInformation("Display cycle complete.");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error rendering ePaper");
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating ePaper Display");
+                }
 
-                await Task.Delay(TimeSpan.FromSeconds(_renderingOptions.UpdateIntervalSeconds), stoppingToken);
+                await Task.Delay(
+                    TimeSpan.FromSeconds(_renderingOptions.UpdateIntervalSeconds),
+                    stoppingToken
+                );
             }
         }
     }
