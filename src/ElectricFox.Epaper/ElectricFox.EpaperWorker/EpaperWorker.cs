@@ -61,20 +61,13 @@ namespace ElectricFox.EpaperWorker
 
                     using (var renderer = new GraphicsRenderer(_assets, _timeZone))
                     {
-                        try
-                        {
-                            _logger.LogInformation("Rendering...");
-                            renderer.Render(state);
-                            var data = renderer.GetPixelData().GetAllData().ToArray();
+                        _logger.LogInformation("Rendering...");
+                        renderer.Render(state);
+                        var data = renderer.GetPixelData().GetAllData().ToArray();
 
-                            _logger.LogInformation("Sending to display...");
-                            await _epaperSocketClient.SendImage(data);
-                            _logger.LogInformation("Display cycle complete.");
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "Error rendering ePaper");
-                        }
+                        _logger.LogInformation("Sending to display...");
+                        await _epaperSocketClient.SendImage(data);
+                        _logger.LogInformation("Display cycle complete.");
                     }
                 }
                 catch (Exception ex)
