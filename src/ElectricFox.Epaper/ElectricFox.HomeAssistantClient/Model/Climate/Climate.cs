@@ -5,10 +5,10 @@ namespace ElectricFox.HomeAssistant.Model.Climate
     public class Climate
     {
         [JsonPropertyName("entity_id")]
-        public string EntityId { get; set; }
+        public string EntityId { get; set; } = "";
 
         [JsonPropertyName("state")]
-        public string State { get; set; }
+        public string State { get; set; } = "";
 
         [JsonPropertyName("attributes")]
         public Attributes Attributes { get; set; }

@@ -20,6 +20,8 @@ namespace ElectricFox.OpenWeather
             ILogger<OpenWeatherClient> logger
         )
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
             if (options is null)
             {
                 throw new ArgumentNullException(nameof(options));
