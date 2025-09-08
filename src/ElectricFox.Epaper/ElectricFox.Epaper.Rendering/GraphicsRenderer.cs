@@ -4,7 +4,6 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using static ElectricFox.Epaper.Rendering.RenderState;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ElectricFox.Epaper.Rendering
 {
@@ -307,7 +306,7 @@ namespace ElectricFox.Epaper.Rendering
                 ctx.DrawImage(image, new Point(pos.X, pos.Y), 1);
             }
 
-            _image.DrawTextBdf("Serenity", _assets.NcenR18, new Point(pos.X + 40, pos.Y - 3));
+            _image.DrawTextBdf("Serenity", _assets.NcenR18, new Point(pos.X + 40, pos.Y + 10));
         }
 
         private void RenderDateAndTime(Point pos)

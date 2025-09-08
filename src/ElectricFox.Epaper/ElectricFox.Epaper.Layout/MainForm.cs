@@ -146,7 +146,7 @@ namespace ElectricFox.Epaper.Layout
                     using (var image = SixLabors.ImageSharp.Image.Load<Rgba32>(openFileDialog.FileName))
                     {
                         ShowImageInPictureBox(image);
-                        pictureData = image.GetPixelData().GetAllData().ToArray();
+                        //pictureData = image.GetPixelData().GetAllData().ToArray();
                     }
                 }
                 catch (Exception ex)
