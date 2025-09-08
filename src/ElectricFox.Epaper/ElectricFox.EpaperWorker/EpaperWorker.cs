@@ -53,15 +53,15 @@ namespace ElectricFox.EpaperWorker
             {
                 _logger.LogInformation("Gathering data...");
 
-                var state = await _epaperDataService.GetRenderStateAsync(
-                    _openWeatherOptions.Latitude,
-                    _openWeatherOptions.Longitude,
-                    stoppingToken
-                );
-
-                using (var renderer = new GraphicsRenderer(_assets, _timeZone))
+                try
                 {
-                    try
+                    var state = await _epaperDataService.GetRenderStateAsync(
+                        _openWeatherOptions.Latitude,
+                        _openWeatherOptions.Longitude,
+                        stoppingToken
+                    );
+
+                    using (var renderer = new GraphicsRenderer(_assets, _timeZone))
                     {
                         _logger.LogInformation("Rendering...");
                         renderer.Render(state);
@@ -71,13 +71,16 @@ namespace ElectricFox.EpaperWorker
                         await _epaperSocketClient.SendImage(data);
                         _logger.LogInformation("Display cycle complete.");
                     }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error rendering ePaper");
-                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating ePaper Display");
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(_renderingOptions.UpdateIntervalSeconds), stoppingToken);
+                await Task.Delay(
+                    TimeSpan.FromSeconds(_renderingOptions.UpdateIntervalSeconds),
+                    stoppingToken
+                );
             }
         }
     }

@@ -46,6 +46,7 @@ namespace ElectricFox.Epaper.Data
             _logger.LogInformation("Getting render state");
 
             // Pool Temperature
+            _logger.LogDebug("Getting pool temp");
             var poolTemp = await _haClient
                 .GetSensorState(SensorId.PoolTemp, stoppingToken)
                 .ConfigureAwait(false);
@@ -56,6 +57,7 @@ namespace ElectricFox.Epaper.Data
             }
 
             // Hot Water Temp
+            _logger.LogDebug("Getting hot water temp");
             var hotWaterClimate = await _haClient
                 .GetClimate(SensorId.HotWaterTemp, stoppingToken)
                 .ConfigureAwait(false);
@@ -126,16 +128,17 @@ namespace ElectricFox.Epaper.Data
                 .ConfigureAwait(false);
             if (bins?.Attributes is not null && bins.Attributes.Any())
             {
-                var dateEntry = bins?.Attributes
-                    .FirstOrDefault(prop => DateTime.TryParseExact(
-                    prop.Key, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _));
+                try
+                {
+                    var dateEntry = bins?.Attributes
+                        .First(prop => DateTime.TryParseExact(
+                        prop.Key, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _));
 
-                if (dateEntry.HasValue)
-                {
-                    state.Bins = dateEntry.Value.Value.GetString();
+                    state.Bins = dateEntry?.Value.GetString() ?? SensorConstant.Unknown;
                 }
-                else
+                catch (Exception ex)
                 {
+                    _logger.LogWarning(ex, "Error parsing bin state: {Message}", ex.Message);
                     state.Bins = SensorConstant.Unknown;
                 }
             }
