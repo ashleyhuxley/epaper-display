@@ -27,8 +27,8 @@ namespace ElectricFox.HomeAssistant.IntegrationTests
         public async Task GetState_ReturnsExpectedAttributes()
         {
             var sensor = await _client.GetSensorState("sensor.average_indoor_temperature", CancellationToken.None);
-            Assert.IsNotNull(sensor);
-            Assert.IsNotNull(sensor.Attributes);
+            Assert.That(sensor, Is.Not.Null);
+            Assert.That(sensor.Attributes, Is.Not.Null);
             Assert.That(sensor?.Attributes["StateClass"], Is.EqualTo("measurement"));
             Assert.That(sensor?.Attributes["FriendlyName"], Is.EqualTo("Average Indoor Temperature"));
         }

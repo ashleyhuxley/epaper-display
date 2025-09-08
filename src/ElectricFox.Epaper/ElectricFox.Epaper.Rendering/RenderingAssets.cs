@@ -1,4 +1,4 @@
-﻿using BdfFontParser;
+﻿using ElectricFox.BdfSharp;
 
 namespace ElectricFox.Epaper.Rendering
 {
@@ -9,15 +9,18 @@ namespace ElectricFox.Epaper.Rendering
         public RenderingAssets(string basePath)
         {
             _basePath = basePath;
+        }
 
-            NcenR18 = new BdfFont(Path.Join(basePath, "/Fonts/ncenR18.bdf"));
-            Spleen8x16 = new BdfFont(Path.Join(basePath, "/Fonts/spleen-8x16.bdf"));
-            Tamzen7x14r = new BdfFont(Path.Join(basePath, "/Fonts/tamzen7x14r.bdf"));
-            WinCrox5hb = new BdfFont(Path.Join(basePath, "/Fonts/win_crox5hb.bdf"));
-            TamzenForPowerline10x20b = new BdfFont(Path.Join(basePath, "/Fonts/TamzenForPowerline10x20b.bdf"));
-            Generic10x20 = new BdfFont(Path.Join(basePath, "/Fonts/10x20.bdf"));
-            Tamzen7x14b = new BdfFont(Path.Join(basePath, "/Fonts/Tamzen7x14b.bdf"));
-            Generic5x8 = new BdfFont(Path.Join(basePath, "/Fonts/5x8.bdf"));
+        public async Task LoadFontsAsync()
+        {
+            NcenR18 = await BdfFont.LoadAsync(Path.Join(_basePath, "/Fonts/ncenR18.bdf"));
+            Spleen8x16 = await BdfFont.LoadAsync(Path.Join(_basePath, "/Fonts/spleen-8x16.bdf"));
+            Tamzen7x14r = await BdfFont.LoadAsync(Path.Join(_basePath, "/Fonts/tamzen7x14r.bdf"));
+            WinCrox5hb = await BdfFont.LoadAsync(Path.Join(_basePath, "/Fonts/win_crox5hb.bdf"));
+            TamzenForPowerline10x20b = await BdfFont.LoadAsync(Path.Join(_basePath, "/Fonts/TamzenForPowerline10x20b.bdf"));
+            Generic10x20 = await BdfFont.LoadAsync(Path.Join(_basePath, "/Fonts/10x20.bdf"));
+            Tamzen7x14b = await BdfFont.LoadAsync(Path.Join(_basePath, "/Fonts/Tamzen7x14b.bdf"));
+            Generic5x8 = await BdfFont.LoadAsync(Path.Join(_basePath, "/Fonts/5x8.bdf"));
         }
 
         public string GetIconPath(string icon)
@@ -25,14 +28,14 @@ namespace ElectricFox.Epaper.Rendering
             return Path.Join(_basePath, icon);
         }
 
-        public BdfFont NcenR18 { get; private set; }
-        public BdfFont Spleen8x16 {  get; private set; }
-        public BdfFont Tamzen7x14r { get; private set; }
-        public BdfFont WinCrox5hb { get; private set; }
-        public BdfFont TamzenForPowerline10x20b { get; private set; }
-        public BdfFont Generic10x20 { get; private set; }
-        public BdfFont Tamzen7x14b { get; private set; }
-        public BdfFont Generic5x8 { get; private set; }
+        public BdfFont? NcenR18 { get; private set; }
+        public BdfFont? Spleen8x16 {  get; private set; }
+        public BdfFont? Tamzen7x14r { get; private set; }
+        public BdfFont? WinCrox5hb { get; private set; }
+        public BdfFont? TamzenForPowerline10x20b { get; private set; }
+        public BdfFont? Generic10x20 { get; private set; }
+        public BdfFont? Tamzen7x14b { get; private set; }
+        public BdfFont? Generic5x8 { get; private set; }
 
     }
 

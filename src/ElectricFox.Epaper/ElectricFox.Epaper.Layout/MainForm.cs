@@ -46,13 +46,15 @@ namespace ElectricFox.Epaper.Layout
 
             _assets = new RenderingAssets(renderingOptions.Value.AssetsPath);
 
+
             sendButton.Enabled = true;
             renderButton.Enabled = true;
         }
 
-        private void MainFormLoad(object sender, EventArgs e)
+        private async void MainFormLoad(object sender, EventArgs e)
         {
             propertyGrid.SelectedObject = _renderState;
+            await _assets.LoadFontsAsync();
         }
 
         private void LayoutMouseMove(object sender, MouseEventArgs e)

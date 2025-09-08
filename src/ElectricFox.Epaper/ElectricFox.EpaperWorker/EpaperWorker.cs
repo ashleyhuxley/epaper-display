@@ -47,6 +47,8 @@ namespace ElectricFox.EpaperWorker
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await _assets.LoadFontsAsync();
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Gathering data...");
