@@ -1,7 +1,6 @@
-﻿using BdfFontParser;
+﻿using ElectricFox.BdfSharp;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ElectricFox.Epaper.Rendering
 {
@@ -9,7 +8,7 @@ namespace ElectricFox.Epaper.Rendering
     {
         public static void DrawTextBdf(this Image<Rgba32> image, string text, BdfFont font, Point pos, Color color)
         {
-            var map = font.GetMapOfString(text);
+            var map = font.RenderBitmap(text);
             var fwidth = map.GetLength(0);
             var fheight = map.GetLength(1);
 

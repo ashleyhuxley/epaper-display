@@ -30,4 +30,4 @@ jobs:
       - name: Publish and push the container image
         run: |
           dotnet publish ElectricFox.EpaperWorker/ElectricFox.EpaperWorker.csproj --os linux --arch x64 /t:PublishContainer -c Release -p ContainerImageTags='"${{ github.event.release.name }};latest"'
-        working-directory: src/ElectricFox.Epaper
+        working-directory: src

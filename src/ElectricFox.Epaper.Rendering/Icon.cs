@@ -1,42 +1,34 @@
-﻿using BdfFontParser;
+﻿using SixLabors.ImageSharp;
 
 namespace ElectricFox.Epaper.Rendering
 {
-    public class RenderingAssets
+    public class Icons
     {
-        private readonly string _basePath;
-
-        public RenderingAssets(string basePath)
-        {
-            _basePath = basePath;
-
-            NcenR18 = new BdfFont(Path.Join(basePath, "/Fonts/ncenR18.bdf"));
-            Spleen8x16 = new BdfFont(Path.Join(basePath, "/Fonts/spleen-8x16.bdf"));
-            Tamzen7x14r = new BdfFont(Path.Join(basePath, "/Fonts/tamzen7x14r.bdf"));
-            WinCrox5hb = new BdfFont(Path.Join(basePath, "/Fonts/win_crox5hb.bdf"));
-            TamzenForPowerline10x20b = new BdfFont(Path.Join(basePath, "/Fonts/TamzenForPowerline10x20b.bdf"));
-            Generic10x20 = new BdfFont(Path.Join(basePath, "/Fonts/10x20.bdf"));
-            Tamzen7x14b = new BdfFont(Path.Join(basePath, "/Fonts/Tamzen7x14b.bdf"));
-            Generic5x8 = new BdfFont(Path.Join(basePath, "/Fonts/5x8.bdf"));
-        }
-
-        public string GetIconPath(string icon)
-        {
-            return Path.Join(_basePath, icon);
-        }
-
-        public BdfFont NcenR18 { get; private set; }
-        public BdfFont Spleen8x16 {  get; private set; }
-        public BdfFont Tamzen7x14r { get; private set; }
-        public BdfFont WinCrox5hb { get; private set; }
-        public BdfFont TamzenForPowerline10x20b { get; private set; }
-        public BdfFont Generic10x20 { get; private set; }
-        public BdfFont Tamzen7x14b { get; private set; }
-        public BdfFont Generic5x8 { get; private set; }
-
+        public required Image HouseDay { get; init; }
+        public required Image HouseNight { get; init; }
+        public required Image Thermometer { get; init; }
+        public required Image Thermostat { get; init; }
+        public required Image AlarmDisarmed { get; init; }
+        public required Image AlarmArmed { get; init; }
+        public required Image Trash { get; init; }
+        public required Image WeatherClearSky { get; init; }
+        public required Image WeatherFewClouds { get; init; }
+        public required Image WeatherScatteredClouds { get; init; }
+        public required Image WeatherBrokenClouds { get; init; }
+        public required Image WeatherShowerRain { get; init; }
+        public required Image WeatherRain { get; init; }    
+        public required Image WeatherThunderstorm { get; init; }
+        public required Image WeatherSnow { get; init; }
+        public required Image WeatherMist { get; init; }
+        public required Image Sunrise { get; init; }
+        public required Image Sunset { get; init; }
+        public required Image Wind { get; init; }
+        public required Image Humidity { get; init; }
+        public required Image Pool { get; init; }
+        public required Image PoolHeater { get; init; }
     }
 
-    public class Icon
+    public class IconPath
     {
         public const string HouseDay = "/Icons/house-sun.png";
         public const string HouseNight = "/Icons/house-moon.png";
