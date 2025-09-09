@@ -14,7 +14,9 @@ namespace ElectricFox.Epaper.Rendering
 
         private RenderState _state;
 
-        private readonly RenderingAssets _assets;
+        private readonly BdfFonts _fonts;
+
+        private readonly Icons _icons;
 
         private readonly Image<Rgba32> _image = new(width, height);
 
@@ -22,9 +24,10 @@ namespace ElectricFox.Epaper.Rendering
 
         private readonly DateTimeZone _timeZone;
 
-        public GraphicsRenderer(RenderingAssets assets, DateTimeZone timeZone)
+        public GraphicsRenderer(BdfFonts fonts, Icons icons, DateTimeZone timeZone)
         {
-            _assets = assets ?? throw new ArgumentNullException(nameof(assets));
+            _fonts = fonts ?? throw new ArgumentNullException(nameof(fonts));
+            _icons = icons ?? throw new ArgumentNullException(nameof(icons));
             _state = new RenderState();
             _timeZone = timeZone ?? throw new ArgumentNullException(nameof(timeZone));
         }
@@ -67,25 +70,18 @@ namespace ElectricFox.Epaper.Rendering
 
         private void RenderPool(IImageProcessingContext ctx, Point pos)
         {
-            using (var image = Image.Load(_assets.GetIconPath(Icon.Pool)))
-            {
-                ctx.DrawImage(image, new Point(pos.X, pos.Y), 1);
-            }
+            ctx.DrawImage(_icons.Pool, new Point(pos.X, pos.Y), 1);
+            ctx.DrawImage(_icons.PoolHeater, new Point(pos.X + 120, pos.Y), 1);
 
-            using (var image = Image.Load(_assets.GetIconPath(Icon.PoolHeater)))
-            {
-                ctx.DrawImage(image, new Point(pos.X + 120, pos.Y), 1);
-            }
-
-            _image.DrawTextBdf($"{_state.PoolTemp:0.0}°C", _assets.WinCrox5hb, new Point(pos.X + 35, pos.Y + 2));
-            _image.DrawTextBdf($"{_state.HotWaterTemp:0.0}°C", _assets.WinCrox5hb, new Point(pos.X + 155, pos.Y + 2));
+            _image.DrawTextBdf($"{_state.PoolTemp:0.0}°C", _fonts.WinCrox5hb, new Point(pos.X + 35, pos.Y + 2));
+            _image.DrawTextBdf($"{_state.HotWaterTemp:0.0}°C", _fonts.WinCrox5hb, new Point(pos.X + 155, pos.Y + 2));
         }
 
         private void RenderFirefly(Point pos)
         {
             _image.DrawTextBdf(
                 "Firefly Class Registry No. 404-E-132-4FE274A",
-                _assets.Generic5x8,
+                _fonts.Generic5x8,
                 pos
             );
         }
@@ -98,52 +94,37 @@ namespace ElectricFox.Epaper.Rendering
             var sunrise = data.Sunrise.InZone(_timeZone).LocalDateTime.ToString("HH:mm", null);
             var sunset = data.Sunset.InZone(_timeZone).LocalDateTime.ToString("HH:mm", null);
 
-            using (var image = Image.Load(_assets.GetIconPath(GetIcon(data.Icon))))
-            {
-                ctx.DrawImage(image, new Point(pos.X, pos.Y), 1);
-            }
+            ctx.DrawImage(GetIcon(data.Icon), new Point(pos.X, pos.Y), 1);
 
-            _image.DrawTextBdf(day, _assets.Tamzen7x14b, new Point(pos.X, pos.Y + 30), Color.Red);
+            _image.DrawTextBdf(day, _fonts.Tamzen7x14b, new Point(pos.X, pos.Y + 30), Color.Red);
 
             _image.DrawTextBdf(
                 $"{data.DayTemp:0.0}°",
-                _assets.Generic10x20,
+                _fonts.Generic10x20,
                 new Point(pos.X + 70, pos.Y)
             );
             _image.DrawTextBdf(
                 $"{data.NightTemp:0.0}°",
-                _assets.Spleen8x16,
+                _fonts.Spleen8x16,
                 new Point(pos.X + 70, pos.Y + 25)
             );
 
-            using (var image = Image.Load(_assets.GetIconPath(Icon.Sunrise)))
-            {
-                ctx.DrawImage(image, new Point(pos.X + 205, pos.Y), 1);
-            }
-            using (var image = Image.Load(_assets.GetIconPath(Icon.Sunset)))
-            {
-                ctx.DrawImage(image, new Point(pos.X + 205, pos.Y + 21), 1);
-            }
+            ctx.DrawImage(_icons.Sunrise, new Point(pos.X + 205, pos.Y), 1);
+            ctx.DrawImage(_icons.Sunset, new Point(pos.X + 205, pos.Y + 21), 1);
 
-            using (var image = Image.Load(_assets.GetIconPath(Icon.Humidity)))
-            {
-                ctx.DrawImage(image, new Point(pos.X + 135, pos.Y), 1);
-            }
-            using (var image = Image.Load(_assets.GetIconPath(Icon.Wind)))
-            {
-                ctx.DrawImage(image, new Point(pos.X + 135, pos.Y + 21), 1);
-            }
+            ctx.DrawImage(_icons.Humidity, new Point(pos.X + 135, pos.Y), 1);
+            ctx.DrawImage(_icons.Wind, new Point(pos.X + 135, pos.Y + 21), 1);
 
-            _image.DrawTextBdf(sunrise, _assets.Tamzen7x14b, new Point(pos.X + 225, pos.Y + 2));
-            _image.DrawTextBdf(sunset, _assets.Tamzen7x14b, new Point(pos.X + 225, pos.Y + 23));
+            _image.DrawTextBdf(sunrise, _fonts.Tamzen7x14b, new Point(pos.X + 225, pos.Y + 2));
+            _image.DrawTextBdf(sunset, _fonts.Tamzen7x14b, new Point(pos.X + 225, pos.Y + 23));
             _image.DrawTextBdf(
                 $"{data.Humidity}%",
-                _assets.Tamzen7x14b,
+                _fonts.Tamzen7x14b,
                 new Point(pos.X + 155, pos.Y + 2)
             );
             _image.DrawTextBdf(
                 $"{data.WindSpeed:0}mph",
-                _assets.Tamzen7x14b,
+                _fonts.Tamzen7x14b,
                 new Point(pos.X + 155, pos.Y + 23),
                 data.WindSpeed > 10 ? Color.Red : Color.Black
             );
@@ -162,15 +143,12 @@ namespace ElectricFox.Epaper.Rendering
 
                 var dayTemp = Math.Round(weatherData.DayTemp, 0);
 
-                using (var image = Image.Load(_assets.GetIconPath(GetIcon(weatherData.Icon))))
-                {
-                    ctx.DrawImage(image, new Point(x, y), 1);
-                }
+                ctx.DrawImage(GetIcon(weatherData.Icon), new Point(x, y), 1);
 
-                _image.DrawTextBdf(day, _assets.Tamzen7x14b, new Point(x, y + 30));
+                _image.DrawTextBdf(day, _fonts.Tamzen7x14b, new Point(x, y + 30));
                 _image.DrawTextBdf(
                     $"{dayTemp:0}°C",
-                    _assets.Generic10x20,
+                    _fonts.Generic10x20,
                     new Point(x + 40, y + 5),
                     Color.Black
                 );
@@ -184,31 +162,28 @@ namespace ElectricFox.Epaper.Rendering
             }
         }
 
-        private static string GetIcon(WeatherIcon weatherIcon) =>
+        private Image GetIcon(WeatherIcon weatherIcon) =>
             weatherIcon switch
             {
-                WeatherIcon.ClearSky => Icon.WeatherClearSky,
-                WeatherIcon.FewClouds => Icon.WeatherFewClouds,
-                WeatherIcon.ScatteredClouds => Icon.WeatherScatteredClouds,
-                WeatherIcon.BrokenClouds => Icon.WeatherBrokenClouds,
-                WeatherIcon.ShowerRain => Icon.WeatherShowerRain,
-                WeatherIcon.Rain => Icon.WeatherRain,
-                WeatherIcon.Thunderstorm => Icon.WeatherThunderstorm,
-                WeatherIcon.Snow => Icon.WeatherSnow,
-                WeatherIcon.Mist => Icon.WeatherMist,
-                _ => Icon.WeatherClearSky,
+                WeatherIcon.ClearSky => _icons.WeatherClearSky,
+                WeatherIcon.FewClouds => _icons.WeatherFewClouds,
+                WeatherIcon.ScatteredClouds => _icons.WeatherScatteredClouds,
+                WeatherIcon.BrokenClouds => _icons.WeatherBrokenClouds,
+                WeatherIcon.ShowerRain => _icons.WeatherShowerRain,
+                WeatherIcon.Rain => _icons.WeatherRain,
+                WeatherIcon.Thunderstorm => _icons.WeatherThunderstorm,
+                WeatherIcon.Snow => _icons.WeatherSnow,
+                WeatherIcon.Mist => _icons.WeatherMist,
+                _ => _icons.WeatherClearSky,
             };
 
         private void RenderTrash(IImageProcessingContext ctx, Point pos)
         {
-            using (var image = Image.Load(_assets.GetIconPath(Icon.Trash)))
-            {
-                ctx.DrawImage(image, new Point(pos.X, pos.Y), 1);
-            }
+            ctx.DrawImage(_icons.Trash, new Point(pos.X, pos.Y), 1);
 
             _image.DrawTextBdf(
                 _state.Bins,
-                _assets.TamzenForPowerline10x20b,
+                _fonts.TamzenForPowerline10x20b,
                 new Point(pos.X + 31, pos.Y + 8)
             );
         }
@@ -220,7 +195,7 @@ namespace ElectricFox.Epaper.Rendering
                 var room = _state.RoomStates[i];
 
                 var y = pos.Y + (i * 20);
-                _image.DrawTextBdf(room.RoomName, _assets.Spleen8x16, new Point(pos.X + 5, y));
+                _image.DrawTextBdf(room.RoomName, _fonts.Spleen8x16, new Point(pos.X + 5, y));
 
                 var tempColour =
                     room.Temperature < (_state.ThermostatTemp - 1.5) ? Color.Red : Color.Black;
@@ -228,13 +203,13 @@ namespace ElectricFox.Epaper.Rendering
 
                 _image.DrawTextBdf(
                     $"{room.Temperature:0.0}°C",
-                    _assets.Spleen8x16,
+                    _fonts.Spleen8x16,
                     new Point(pos.X + 130, y),
                     tempColour
                 );
                 _image.DrawTextBdf(
                     $"{room.Humidity:0}%",
-                    _assets.Spleen8x16,
+                    _fonts.Spleen8x16,
                     new Point(pos.X + 215, y),
                     humColour
                 );
@@ -243,14 +218,7 @@ namespace ElectricFox.Epaper.Rendering
 
         private void RenderAlarmState(IImageProcessingContext ctx, Point pos)
         {
-            using (
-                var image = Image.Load(
-                    _assets.GetIconPath(_state.IsArmed ? Icon.AlarmArmed : Icon.AlarmDisarmed)
-                )
-            )
-            {
-                ctx.DrawImage(image, new Point(pos.X, pos.Y), 1);
-            }
+            ctx.DrawImage(_state.IsArmed ? _icons.AlarmArmed : _icons.AlarmDisarmed, new Point(pos.X, pos.Y), 1);
 
             string text = _state.Alarm switch
             {
@@ -262,7 +230,7 @@ namespace ElectricFox.Epaper.Rendering
 
             _image.DrawTextBdf(
                 text,
-                _assets.TamzenForPowerline10x20b,
+                _fonts.TamzenForPowerline10x20b,
                 new Point(pos.X + 40, pos.Y + 8),
                 _state.IsArmed ? Color.Red : Color.Black
             );
@@ -272,49 +240,36 @@ namespace ElectricFox.Epaper.Rendering
         {
             var color = _state.HeatingOn ? Color.Red : Color.Black;
 
-            using (var image = Image.Load(_assets.GetIconPath(Icon.Thermometer)))
-            {
-                ctx.DrawImage(image, new Point(pos.X, pos.Y), 1);
-            }
+            ctx.DrawImage(_icons.Thermometer, new Point(pos.X, pos.Y), 1);
 
-            using (var image = Image.Load(_assets.GetIconPath(Icon.Thermostat)))
-            {
-                ctx.DrawImage(image, new Point(pos.X + 120, pos.Y), 1);
-            }
+            ctx.DrawImage(_icons.Thermostat, new Point(pos.X + 120, pos.Y), 1);
 
             _image.DrawTextBdf(
                 $"{_state.CurrentTemp:0.0}°C",
-                _assets.WinCrox5hb,
+                _fonts.WinCrox5hb,
                 new Point(pos.X + 35, pos.Y + 2),
                 color
             );
             _image.DrawTextBdf(
                 $"{_state.CurrentOutsideTemp:0.0}°C",
-                _assets.WinCrox5hb,
+                _fonts.WinCrox5hb,
                 new Point(pos.X + 155, pos.Y + 2)
             );
         }
 
         private void RenderTitle(IImageProcessingContext ctx, Point pos)
         {
-            using (
-                var image = Image.Load(
-                    _assets.GetIconPath(_state.IsNight ? Icon.HouseNight : Icon.HouseDay)
-                )
-            )
-            {
-                ctx.DrawImage(image, new Point(pos.X, pos.Y), 1);
-            }
+            ctx.DrawImage(_state.IsNight ? _icons.HouseNight : _icons.HouseDay, new Point(pos.X, pos.Y), 1);
 
-            _image.DrawTextBdf("Serenity", _assets.NcenR18, new Point(pos.X + 40, pos.Y + 10));
+            _image.DrawTextBdf("Serenity", _fonts.NcenR18, new Point(pos.X + 40, pos.Y + 10));
         }
 
         private void RenderDateAndTime(Point pos)
         {
             var localDate = _state.DateTime.InZone(_timeZone).LocalDateTime;
 
-            _image.DrawTextBdf($"{localDate:dddd} {localDate.Day}{GetDaySuffix(localDate.Day)} {localDate:MMMM}", _assets.Spleen8x16, new Point(pos.X, pos.Y));
-            _image.DrawTextBdf($"{localDate:HH:mm}", _assets.Spleen8x16, new Point(pos.X + 200, pos.Y));
+            _image.DrawTextBdf($"{localDate:dddd} {localDate.Day}{GetDaySuffix(localDate.Day)} {localDate:MMMM}", _fonts.Spleen8x16, new Point(pos.X, pos.Y));
+            _image.DrawTextBdf($"{localDate:HH:mm}", _fonts.Spleen8x16, new Point(pos.X + 200, pos.Y));
         }
 
         private string GetDaySuffix(int day)
@@ -346,7 +301,7 @@ namespace ElectricFox.Epaper.Rendering
                 float x = pos.X + (i * 45);
                 _image.DrawTextBdf(
                     hour.ToString("HH:mm"),
-                    _assets.Tamzen7x14r,
+                    _fonts.Tamzen7x14r,
                     new Point((int)x, (int)pos.Y + 155)
                 );
                 hour = hour.AddHours(1);
@@ -368,7 +323,7 @@ namespace ElectricFox.Epaper.Rendering
                 var y = (7 - i) * 20;
                 _image.DrawTextBdf(
                     $"{Convert.ToInt32(Math.Round(temp, 0)):0}",
-                    _assets.Tamzen7x14r,
+                    _fonts.Tamzen7x14r,
                     new Point(Convert.ToInt32(pos.X), Convert.ToInt32(pos.Y) + y)
                 );
             }
