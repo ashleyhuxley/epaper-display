@@ -8,6 +8,6 @@
         public const string OutsideTemperature = "sensor.mqtt_sensor_outside_air_temp";
         public const string Trash = "sensor.bins";
         public const string PoolTemp = "sensor.mqtt_sensor_pool_temp_2";
-        public const string HotWaterTemp = "climate.hot_water";
+        public const string HotWaterTemp = "climate.hot_water_thermostat";
     }
 }

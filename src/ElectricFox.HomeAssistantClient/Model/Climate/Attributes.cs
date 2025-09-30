@@ -8,10 +8,10 @@ namespace ElectricFox.HomeAssistant.Model.Climate
         public List<string> HvacModes { get; set; } = [];
 
         [JsonPropertyName("min_temp")]
-        public int? MinTemp { get; set; }
+        public double? MinTemp { get; set; }
 
         [JsonPropertyName("max_temp")]
-        public int? MaxTemp { get; set; }
+        public double? MaxTemp { get; set; }
 
         [JsonPropertyName("target_temp_step")]
         public double? TargetTempStep { get; set; }
