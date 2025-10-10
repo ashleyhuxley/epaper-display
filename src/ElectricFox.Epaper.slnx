@@ -1,0 +1,11 @@
+<Solution>
+  <Project Path="ElectricFox.Epaper.Data/ElectricFox.Epaper.Data.csproj" />
+  <Project Path="ElectricFox.Epaper.Layout/ElectricFox.Epaper.Layout.csproj" />
+  <Project Path="ElectricFox.Epaper.Rendering/ElectricFox.Epaper.Rendering.csproj" />
+  <Project Path="ElectricFox.Epaper.Sockets/ElectricFox.Epaper.Sockets.csproj" />
+  <Project Path="ElectricFox.EpaperWorker/ElectricFox.EpaperWorker.csproj" />
+  <Project Path="ElectricFox.HomeAssistantClient.IntegrationTests/ElectricFox.HomeAssistantClient.IntegrationTests.csproj" />
+  <Project Path="ElectricFox.HomeAssistantClient/ElectricFox.HomeAssistant.csproj" />
+  <Project Path="ElectricFox.HomeAssistantData/ElectricFox.HomeAssistantData.csproj" />
+  <Project Path="ElectricFox.OpenWeather/ElectricFox.OpenWeather.csproj" />
+</Solution>
