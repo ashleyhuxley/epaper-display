@@ -5,24 +5,27 @@ using ElectricFox.HomeAssistant.Model;
 using ElectricFox.HomeAssistant.Model.Climate;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
+using ElectricFox.ConfigManagement;
+using static ElectricFox.Epaper.Shared.Constants;
+using ElectricFox.Epaper.Shared;
 
 namespace ElectricFox.HomeAssistant
 {
     public class HomeAssistantClient : IHomeAssistantClient
     {
-        private readonly IHomeAssistantClientOptions _options;
+        private readonly ConfigManager _configManager;
         private readonly HttpClient _httpClient;
         private readonly ILogger<HomeAssistantClient> _logger;
         private readonly JsonSerializerOptions _jsonOptions =
             new JsonSerializerOptions().ConfigureForNodaTime(new NodaJsonSettings());
 
         public HomeAssistantClient(
-            IHomeAssistantClientOptions options,
+            ConfigManager configManager,
             HttpClient client,
             ILogger<HomeAssistantClient> logger
         )
         {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
+            _configManager = configManager ?? throw new ArgumentNullException(nameof(configManager));
             _httpClient = client ?? throw new ArgumentNullException(nameof(client));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -32,7 +35,7 @@ namespace ElectricFox.HomeAssistant
             CancellationToken cancellationToken
         )
         {
-            var builder = new UriBuilder(_options.BaseUrl) { Path = $"/api/states/{sensorId}", };
+            var builder = new UriBuilder(_configManager.Get<string>(Constants.HomeAssistant, BaseUrl)) { Path = $"/api/states/{sensorId}", };
 
             return await Request<Sensor>(builder.Uri, cancellationToken);
         }
@@ -42,7 +45,7 @@ namespace ElectricFox.HomeAssistant
             CancellationToken cancellationToken
         )
         {
-            var builder = new UriBuilder(_options.BaseUrl) { Path = $"/api/states/{climateId}", };
+            var builder = new UriBuilder(_configManager.Get<string>(Constants.HomeAssistant, BaseUrl)) { Path = $"/api/states/{climateId}", };
 
             return await Request<Climate>(builder.Uri, cancellationToken);
         }
@@ -53,7 +56,7 @@ namespace ElectricFox.HomeAssistant
             CancellationToken cancellationToken
         )
         {
-            var builder = new UriBuilder(_options.BaseUrl)
+            var builder = new UriBuilder(_configManager.Get<string>(Constants.HomeAssistant, BaseUrl))
             {
                 Path = $"/api/history/period/{from:yyyy-MM-ddTHH:mm:ssZ}",
                 Query =
@@ -73,7 +76,7 @@ namespace ElectricFox.HomeAssistant
             {
                 requestMessage.Headers.Authorization = new AuthenticationHeaderValue(
                     "Bearer",
-                    _options.ApiToken
+                    _configManager.Get<string>(Constants.HomeAssistant, ApiToken)
                 );
 
                 var response = await _httpClient

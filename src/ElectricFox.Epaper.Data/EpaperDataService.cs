@@ -1,12 +1,10 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using ElectricFox.Epaper.Rendering;
 using ElectricFox.HomeAssistant;
 using ElectricFox.OpenWeather;
 using Microsoft.Extensions.Logging;
 using NodaTime;
-using static ElectricFox.Epaper.Rendering.RenderState;
 
 namespace ElectricFox.Epaper.Data
 {

@@ -1,3 +1,4 @@
+using ElectricFox.ConfigManagement;
 using ElectricFox.Epaper.Data;
 using ElectricFox.Epaper.Rendering;
 using ElectricFox.Epaper.Sockets;
@@ -6,8 +7,10 @@ using ElectricFox.OpenWeather;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Reflection;
+using NLog;
+using NLog.Web;
 
 namespace ElectricFox.Epaper.Layout
 {
@@ -16,13 +19,42 @@ namespace ElectricFox.Epaper.Layout
         [STAThread]
         public static void Main()
         {
+            var logger = LogManager
+                .Setup()
+                .LoadConfigurationFromAppSettings()
+                .GetCurrentClassLogger();
+
+            logger.Info($"Starting Epaper.Layout");
+
+            var configBuilder = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .AddEnvironmentVariables();
+
+            IConfigurationRoot configRoot = configBuilder.Build();
+            var configUrl = configRoot.GetValue<string>("ConfigUrl");
+            if (string.IsNullOrEmpty(configUrl))
+            {
+                logger.Error("ConfigUrl is not set in environment variables or appsettings.json");
+                return;
+            }
+
+#if DEBUG
+            const string env = "dev";
+#else
+            const string env = "prod";
+#endif
+
             var host = Host.CreateDefaultBuilder()
-                .ConfigureAppConfiguration((context, config) =>
+                .ConfigureServices((context, services) =>
                 {
-                    config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-                    config.AddUserSecrets(Assembly.GetExecutingAssembly());
-                }).ConfigureServices((context, services) =>
-                {
+                    services.AddSingleton(sp =>
+                    {
+                        var logger = sp.GetRequiredService<ILogger<ConfigManager>>();
+                        var manager = new ConfigManager(configUrl, logger, env, TimeSpan.FromMinutes(2));
+                        manager.ReloadAsync().GetAwaiter().GetResult();
+                        return manager;
+                    });
+
                     var configRoot = context.Configuration;
 
                     services.Configure<OpenWeatherOptions>(configRoot.GetSection("OpenWeather"));
