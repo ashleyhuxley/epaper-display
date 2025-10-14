@@ -1,9 +1,9 @@
 using ElectricFox.BdfSharp;
+using ElectricFox.ConfigManagement;
 using ElectricFox.Epaper.Data;
 using ElectricFox.Epaper.Rendering;
+using ElectricFox.Epaper.Shared;
 using ElectricFox.Epaper.Sockets;
-using ElectricFox.OpenWeather;
-using Microsoft.Extensions.Options;
 using NodaTime;
 using SixLabors.ImageSharp;
 
@@ -11,42 +11,39 @@ namespace ElectricFox.EpaperWorker
 {
     public class EpaperWorker : BackgroundService
     {
+        private readonly ConfigManager _configManager;
+
         private readonly ILogger<EpaperWorker> _logger;
 
         private readonly EpaperDataService _epaperDataService;
 
         private readonly IEpaperSocketClient _epaperSocketClient;
 
-        private readonly OpenWeatherOptions _openWeatherOptions;
-
-        private readonly EpaperRenderingOptions _renderingOptions;
-
         private readonly DateTimeZone _timeZone;
 
         public EpaperWorker(
+            ConfigManager configManager,
             ILogger<EpaperWorker> logger,
-            IOptions<OpenWeatherOptions> openWeatherOptions,
-            IOptions<EpaperRenderingOptions> renderingOptions,
             IEpaperSocketClient epaperSocketClient,
             EpaperDataService epaperDataService
         )
         {
             _logger = logger;
-            _openWeatherOptions = openWeatherOptions.Value;
-            _renderingOptions = renderingOptions.Value;
 
+            _configManager = 
+                configManager ?? throw new ArgumentNullException(nameof(configManager));
             _epaperDataService =
                 epaperDataService ?? throw new ArgumentNullException(nameof(epaperDataService));
             _epaperSocketClient =
                 epaperSocketClient ?? throw new ArgumentNullException(nameof(epaperSocketClient));
 
-            _timeZone = DateTimeZoneProviders.Tzdb[renderingOptions.Value.TimeZone];
+            _timeZone = DateTimeZoneProviders.Tzdb[_configManager.Get<string>(Constants.Home, Constants.Timezone)];
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var fonts = await LoadFontsAsync(_renderingOptions.AssetsPath);
-            var icons = await LoadIconsAsync(_renderingOptions.AssetsPath);
+            var fonts = await LoadFontsAsync(_configManager.Get<string>(Constants.AppName, Constants.AssetsPath));
+            var icons = await LoadIconsAsync(_configManager.Get<string>(Constants.AppName, Constants.AssetsPath));
 
             while (!stoppingToken.IsCancellationRequested)
             {

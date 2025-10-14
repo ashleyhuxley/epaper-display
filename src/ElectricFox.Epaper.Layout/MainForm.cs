@@ -19,7 +19,7 @@ namespace ElectricFox.Epaper.Layout
 
         private RenderState? _renderState = new();
 
-        private readonly ConfigManager _configManager;
+        private readonly EpaperConfig _configManager;
 
         private DateTimeZone? _timeZone;
 
@@ -30,7 +30,7 @@ namespace ElectricFox.Epaper.Layout
 
 
         public MainForm(
-            ConfigManager configManager,
+            EpaperConfig configManager,
             IEpaperSocketClient epaperSocketClient,
             EpaperDataService epaperDataService
         )
@@ -49,10 +49,10 @@ namespace ElectricFox.Epaper.Layout
 
             _configManager.OnConfigReloaded += async (config) =>
             {
-                _timeZone = DateTimeZoneProviders.Tzdb[_configManager.Get<string>(Constants.Home, Constants.Timezone)];
+                _timeZone = DateTimeZoneProviders.Tzdb[_configManager.GetTimeZone()];
 
-                _fonts = await LoadFontsAsync(_configManager.Get<string>(Constants.AppName, Constants.AssetsPath));
-                _icons = await LoadIconsAsync(_configManager.Get<string>(Constants.AppName, Constants.AssetsPath));
+                _fonts = await LoadFontsAsync(_configManager.GetAssetsPath());
+                _icons = await LoadIconsAsync(_configManager.GetAssetsPath());
             };
         }
 
@@ -136,8 +136,8 @@ namespace ElectricFox.Epaper.Layout
         private async void GetDataButtonClick(object sender, EventArgs e)
         {
             _renderState = await _epaperDataService.GetRenderStateAsync(
-                _configManager.Get<double>(Constants.Home, Constants.Latitude),
-                _configManager.Get<double>(Constants.Home, Constants.Longitude),
+                _configManager.GetLatitude(),
+                _configManager.GetLongitude(),
                 CancellationToken.None
             );
             propertyGrid.SelectedObject = _renderState;

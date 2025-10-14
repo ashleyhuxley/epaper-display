@@ -1,5 +1,4 @@
-﻿using ElectricFox.ConfigManagement;
-using ElectricFox.OpenWeather.Model;
+﻿using ElectricFox.OpenWeather.Model;
 using Microsoft.Extensions.Logging;
 using ElectricFox.Epaper.Shared;
 using System.Text.Json;
@@ -17,7 +16,7 @@ namespace ElectricFox.OpenWeather
         private readonly ILogger<OpenWeatherClient> _logger;
 
         public OpenWeatherClient(
-            ConfigManager configManager,
+            EpaperConfig configManager,
             HttpClient httpClient,
             ILogger<OpenWeatherClient> logger
         )
@@ -29,8 +28,8 @@ namespace ElectricFox.OpenWeather
                 throw new ArgumentNullException(nameof(configManager));
             }
 
-            _baseUrl = configManager.Get<string>(Constants.OpenWeather, Constants.BaseUrl);
-            _apiToken = configManager.Get<string>(Constants.OpenWeather, Constants.ApiToken);
+            _baseUrl = configManager.GetOpenWeatherBaseUrl();
+            _apiToken = configManager.GetOpenWeatherApiToken();
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 

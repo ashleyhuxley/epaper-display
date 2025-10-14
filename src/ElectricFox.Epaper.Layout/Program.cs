@@ -1,6 +1,6 @@
 using ElectricFox.ConfigManagement;
 using ElectricFox.Epaper.Data;
-using ElectricFox.Epaper.Rendering;
+using ElectricFox.Epaper.Shared;
 using ElectricFox.Epaper.Sockets;
 using ElectricFox.HomeAssistant;
 using ElectricFox.OpenWeather;
@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NLog;
 using NLog.Web;
 
@@ -50,17 +49,12 @@ namespace ElectricFox.Epaper.Layout
                     services.AddSingleton(sp =>
                     {
                         var logger = sp.GetRequiredService<ILogger<ConfigManager>>();
-                        var manager = new ConfigManager(configUrl, logger, env, TimeSpan.FromMinutes(2));
+                        var manager = new EpaperConfig(configUrl, env, logger, TimeSpan.FromMinutes(2));
                         manager.ReloadAsync().GetAwaiter().GetResult();
                         return manager;
                     });
 
                     var configRoot = context.Configuration;
-
-                    services.Configure<OpenWeatherOptions>(configRoot.GetSection("OpenWeather"));
-                    services.Configure<EpaperSocketOptions>(configRoot.GetSection("EpaperSocket"));
-                    services.Configure<EpaperRenderingOptions>(configRoot.GetSection("EpaperRendering"));
-                    services.Configure<HomeAssistantOptions>(configRoot.GetSection("HomeAssistant"));
 
                     services.AddTransient<MainForm>();
 
@@ -68,10 +62,6 @@ namespace ElectricFox.Epaper.Layout
                     services.AddTransient<IOpenWeatherClient, OpenWeatherClient>();
                     services.AddTransient<IEpaperSocketClient, EpaperSocketClient>();
                     services.AddTransient<EpaperDataService>();
-
-                    services.AddTransient<IHomeAssistantClientOptions>(s => s.GetRequiredService<IOptions<HomeAssistantOptions>>().Value);
-                    services.AddTransient<IOpenWeatherClientOptions>(s => s.GetRequiredService<IOptions<OpenWeatherOptions>>().Value);
-                    services.AddTransient<IEpaperSocketOptions>(s => s.GetRequiredService<IOptions<EpaperSocketOptions>>().Value);
 
                     services.AddSingleton<HttpClient>();
                 })
