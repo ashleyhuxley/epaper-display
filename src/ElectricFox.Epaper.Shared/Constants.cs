@@ -14,5 +14,7 @@
         public static string ApiToken => "ApiToken";
         public static string DeviceAddress => "DeviceAddress";
         public static string DevicePort => "DevicePort";
+        public static string UpdateInterval => "UpdateInterval";
+        public static string SensorsJson => "sensors.json";
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
 using ElectricFox.Epaper.Rendering;
+using ElectricFox.Epaper.Shared;
 using ElectricFox.HomeAssistant;
 using ElectricFox.OpenWeather;
 using Microsoft.Extensions.Logging;
@@ -16,6 +17,8 @@ namespace ElectricFox.Epaper.Data
 
         private readonly ILogger<EpaperDataService> _logger;
 
+        private readonly EpaperConfig _configManager;
+
         private const float KelvinOffset = 273.15f;
         private const int TemperatureHistoryHours = 6;
         private const int WeatherDays = 7;
@@ -23,14 +26,18 @@ namespace ElectricFox.Epaper.Data
         public EpaperDataService(
             IHomeAssistantClient homeAssistantClient,
             IOpenWeatherClient openWeatherClient,
-            ILogger<EpaperDataService> logger
+            ILogger<EpaperDataService> logger,
+            EpaperConfig configManager
         )
         {
             _haClient =
                 homeAssistantClient ?? throw new ArgumentNullException(nameof(homeAssistantClient));
             _openWeatherClient =
                 openWeatherClient ?? throw new ArgumentNullException(nameof(openWeatherClient));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = 
+                logger ?? throw new ArgumentNullException(nameof(logger));
+            _configManager =
+                configManager ?? throw new ArgumentNullException(nameof(configManager));
         }
 
         public async Task<RenderState> GetRenderStateAsync(
@@ -41,12 +48,15 @@ namespace ElectricFox.Epaper.Data
         {
             var state = new RenderState();
 
+            var sensors = await _configManager.GetSensorsAsync() 
+                ?? throw new InvalidOperationException("Sensors configuration is null");
+            
             _logger.LogInformation("Getting render state");
 
             // Pool Temperature
             _logger.LogDebug("Getting pool temp");
             var poolTemp = await _haClient
-                .GetSensorState(SensorId.PoolTemp, stoppingToken)
+                .GetSensorState(sensors.PoolTemp, stoppingToken)
                 .ConfigureAwait(false);
 
             if (float.TryParse(poolTemp?.State, out var temperatureValue))
@@ -57,7 +67,7 @@ namespace ElectricFox.Epaper.Data
             // Hot Water Temp
             _logger.LogDebug("Getting hot water temp");
             var hotWaterClimate = await _haClient
-                .GetClimate(SensorId.HotWaterTemp, stoppingToken)
+                .GetClimate(sensors.HotWaterTemp, stoppingToken)
                 .ConfigureAwait(false);
 
             if (hotWaterClimate is not null)
@@ -68,7 +78,7 @@ namespace ElectricFox.Epaper.Data
             // Day/Night
             _logger.LogDebug("Getting Day/Night state");
             var sun = await _haClient
-                .GetSensorState(SensorId.Sun, stoppingToken)
+                .GetSensorState(sensors.Sun, stoppingToken)
                 .ConfigureAwait(false);
 
             state.IsNight = sun?.State == SensorConstant.BelowHorizon;
@@ -76,7 +86,7 @@ namespace ElectricFox.Epaper.Data
             // Climate settings
             _logger.LogDebug("Getting thermostat state");
             var climate = await _haClient
-                .GetClimate(SensorId.MainThermostat, stoppingToken)
+                .GetClimate(sensors.MainThermostat, stoppingToken)
                 .ConfigureAwait(false);
 
             if (climate is not null)
@@ -88,14 +98,14 @@ namespace ElectricFox.Epaper.Data
 
             // Temperature History
             _logger.LogDebug("Getting inside temperature history");
-            var indoorTemps = GetTempHistory(SensorId.AverageTemperature, stoppingToken);
+            var indoorTemps = GetTempHistory(sensors.AverageTemperature, stoppingToken);
             await foreach (var indoorTemp in indoorTemps.ConfigureAwait(false))
             {
                 state.IndoorTempHistory.Add(indoorTemp);
             }
 
             _logger.LogDebug("Getting outside temperature history");
-            var outdoorTemps = GetTempHistory(SensorId.OutsideTemperature, stoppingToken);
+            var outdoorTemps = GetTempHistory(sensors.OutsideTemperature, stoppingToken);
             await foreach (var outdoorTemp in outdoorTemps.ConfigureAwait(false))
             {
                 state.OutsideTempHistory.Add(outdoorTemp);
@@ -106,13 +116,13 @@ namespace ElectricFox.Epaper.Data
 
             // Rooms
             _logger.LogDebug("Getting room states");
-            foreach (var room in Room.AllRooms)
+            foreach (var room in sensors.Rooms)
             {
                 state.RoomStates.Add(
                     await GetRoomState(
                             room.Name,
-                            room.TemperatureSensor,
-                            room.HumiditySensor,
+                            room.Temperature,
+                            room.Humidity,
                             stoppingToken
                         )
                         .ConfigureAwait(false)
@@ -122,7 +132,7 @@ namespace ElectricFox.Epaper.Data
             // Bins
             _logger.LogDebug("Getting bin state");
             var bins = await _haClient
-                .GetSensorState(SensorId.Trash, stoppingToken)
+                .GetSensorState(sensors.Trash, stoppingToken)
                 .ConfigureAwait(false);
             if (bins?.Attributes is not null && bins.Attributes.Any())
             {

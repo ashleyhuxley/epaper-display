@@ -19,5 +19,9 @@ namespace ElectricFox.Epaper.Shared
         public double GetLongitude() => Get<double>(Constants.Home, Constants.Longitude);
         public string GetTimeZone() => Get<string>(Constants.Home, Constants.Timezone);
         public string GetAssetsPath() => Get<string>(Constants.AppName, Constants.AssetsPath);
+        public long GetUpdateInterval() => Get<long>(Constants.AppName, Constants.UpdateInterval);
+
+        public async Task<Sensors?> GetSensorsAsync() => 
+            await GetJsonConfig<Sensors?>(Constants.SensorsJson);
     }
 }

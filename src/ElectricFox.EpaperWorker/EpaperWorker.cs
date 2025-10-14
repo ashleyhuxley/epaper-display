@@ -1,5 +1,4 @@
 using ElectricFox.BdfSharp;
-using ElectricFox.ConfigManagement;
 using ElectricFox.Epaper.Data;
 using ElectricFox.Epaper.Rendering;
 using ElectricFox.Epaper.Shared;
@@ -11,7 +10,7 @@ namespace ElectricFox.EpaperWorker
 {
     public class EpaperWorker : BackgroundService
     {
-        private readonly ConfigManager _configManager;
+        private readonly EpaperConfig _configManager;
 
         private readonly ILogger<EpaperWorker> _logger;
 
@@ -22,7 +21,7 @@ namespace ElectricFox.EpaperWorker
         private readonly DateTimeZone _timeZone;
 
         public EpaperWorker(
-            ConfigManager configManager,
+            EpaperConfig configManager,
             ILogger<EpaperWorker> logger,
             IEpaperSocketClient epaperSocketClient,
             EpaperDataService epaperDataService
@@ -37,13 +36,13 @@ namespace ElectricFox.EpaperWorker
             _epaperSocketClient =
                 epaperSocketClient ?? throw new ArgumentNullException(nameof(epaperSocketClient));
 
-            _timeZone = DateTimeZoneProviders.Tzdb[_configManager.Get<string>(Constants.Home, Constants.Timezone)];
+            _timeZone = DateTimeZoneProviders.Tzdb[_configManager.GetTimeZone()];
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var fonts = await LoadFontsAsync(_configManager.Get<string>(Constants.AppName, Constants.AssetsPath));
-            var icons = await LoadIconsAsync(_configManager.Get<string>(Constants.AppName, Constants.AssetsPath));
+            var fonts = await LoadFontsAsync(_configManager.GetAssetsPath());
+            var icons = await LoadIconsAsync(_configManager.GetAssetsPath());
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -52,8 +51,8 @@ namespace ElectricFox.EpaperWorker
                 try
                 {
                     var state = await _epaperDataService.GetRenderStateAsync(
-                        _openWeatherOptions.Latitude,
-                        _openWeatherOptions.Longitude,
+                        _configManager.GetLatitude(),
+                        _configManager.GetLongitude(),
                         stoppingToken
                     );
 
@@ -74,7 +73,7 @@ namespace ElectricFox.EpaperWorker
                 }
 
                 await Task.Delay(
-                    TimeSpan.FromSeconds(_renderingOptions.UpdateIntervalSeconds),
+                    TimeSpan.FromSeconds(_configManager.GetUpdateInterval()),
                     stoppingToken
                 );
             }
