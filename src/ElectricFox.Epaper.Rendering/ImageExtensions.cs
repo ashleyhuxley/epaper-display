@@ -32,8 +32,6 @@ namespace ElectricFox.Epaper.Rendering
             image.DrawTextBdf(text, font, pos, Color.Black);
         }
 
-
-
         public static PaperData GetPixelData(this Image<Rgba32> image)
         {
             var data = new PaperData();

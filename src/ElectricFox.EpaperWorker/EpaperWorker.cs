@@ -50,22 +50,23 @@ namespace ElectricFox.EpaperWorker
 
                 try
                 {
+                    var (Latitude, Longitude) = _configManager.GetCoordinates();
+
                     var state = await _epaperDataService.GetRenderStateAsync(
-                        _configManager.GetLatitude(),
-                        _configManager.GetLongitude(),
+                        Latitude,
+                        Longitude,
                         stoppingToken
                     );
 
-                    using (var renderer = new GraphicsRenderer(fonts, icons, _timeZone))
-                    {
-                        _logger.LogInformation("Rendering...");
-                        renderer.Render(state);
-                        var data = renderer.GetPixelData().GetAllData().ToArray();
+                    using var renderer = new GraphicsRenderer(fonts, icons, _timeZone);
 
-                        _logger.LogInformation("Sending to display...");
-                        await _epaperSocketClient.SendImage(data);
-                        _logger.LogInformation("Display cycle complete.");
-                    }
+                    _logger.LogInformation("Rendering...");
+                    renderer.Render(state);
+                    var data = renderer.GetPixelData().GetAllData().ToArray();
+
+                    _logger.LogInformation("Sending to display...");
+                    await _epaperSocketClient.SendImage(data);
+                    _logger.LogInformation("Display cycle complete.");
                 }
                 catch (Exception ex)
                 {

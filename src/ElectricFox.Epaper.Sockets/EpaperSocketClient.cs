@@ -1,5 +1,4 @@
-﻿using ElectricFox.ConfigManagement;
-using ElectricFox.Epaper.Shared;
+﻿using ElectricFox.Epaper.Shared;
 using System.Net.Sockets;
 
 namespace ElectricFox.Epaper.Sockets
@@ -15,10 +14,9 @@ namespace ElectricFox.Epaper.Sockets
 
         public async Task SendImage(byte[] data)
         {
-            var host = _configManager.GetDeviceAddress();
-            var port = _configManager.GetDevicePort();
+            var (Host, Port) = _configManager.GetDevice();
 
-            using TcpClient client = new(host, port);
+            using TcpClient client = new(Host, Port);
             using NetworkStream stream = client.GetStream();
 
             int packetSize = 1024;

@@ -1,5 +1,4 @@
 using ElectricFox.BdfSharp;
-using ElectricFox.ConfigManagement;
 using ElectricFox.Epaper.Data;
 using ElectricFox.Epaper.Rendering;
 using ElectricFox.Epaper.Shared;
@@ -26,6 +25,7 @@ namespace ElectricFox.Epaper.Layout
         private byte[]? pictureData = null;
 
         private BdfFonts? _fonts;
+
         private Icons? _icons;
 
 
@@ -135,9 +135,11 @@ namespace ElectricFox.Epaper.Layout
 
         private async void GetDataButtonClick(object sender, EventArgs e)
         {
+            var (Latitude, Longitude) = _configManager.GetCoordinates();
+
             _renderState = await _epaperDataService.GetRenderStateAsync(
-                _configManager.GetLatitude(),
-                _configManager.GetLongitude(),
+                Latitude,
+                Longitude,
                 CancellationToken.None
             );
             propertyGrid.SelectedObject = _renderState;

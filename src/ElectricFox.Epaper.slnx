@@ -6,6 +6,5 @@
   <Project Path="ElectricFox.Epaper.Sockets/ElectricFox.Epaper.Sockets.csproj" />
   <Project Path="ElectricFox.EpaperWorker/ElectricFox.EpaperWorker.csproj" />
   <Project Path="ElectricFox.HomeAssistantClient/ElectricFox.HomeAssistant.csproj" />
-  <Project Path="ElectricFox.HomeAssistantData/ElectricFox.HomeAssistantData.csproj" />
   <Project Path="ElectricFox.OpenWeather/ElectricFox.OpenWeather.csproj" />
 </Solution>
