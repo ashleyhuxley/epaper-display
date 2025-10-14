@@ -1,9 +1,8 @@
 using ElectricFox.BdfSharp;
 using ElectricFox.Epaper.Data;
 using ElectricFox.Epaper.Rendering;
+using ElectricFox.Epaper.Shared;
 using ElectricFox.Epaper.Sockets;
-using ElectricFox.OpenWeather;
-using Microsoft.Extensions.Options;
 using NodaTime;
 using SixLabors.ImageSharp;
 
@@ -11,42 +10,39 @@ namespace ElectricFox.EpaperWorker
 {
     public class EpaperWorker : BackgroundService
     {
+        private readonly EpaperConfig _configManager;
+
         private readonly ILogger<EpaperWorker> _logger;
 
         private readonly EpaperDataService _epaperDataService;
 
         private readonly IEpaperSocketClient _epaperSocketClient;
 
-        private readonly OpenWeatherOptions _openWeatherOptions;
-
-        private readonly EpaperRenderingOptions _renderingOptions;
-
         private readonly DateTimeZone _timeZone;
 
         public EpaperWorker(
+            EpaperConfig configManager,
             ILogger<EpaperWorker> logger,
-            IOptions<OpenWeatherOptions> openWeatherOptions,
-            IOptions<EpaperRenderingOptions> renderingOptions,
             IEpaperSocketClient epaperSocketClient,
             EpaperDataService epaperDataService
         )
         {
             _logger = logger;
-            _openWeatherOptions = openWeatherOptions.Value;
-            _renderingOptions = renderingOptions.Value;
 
+            _configManager = 
+                configManager ?? throw new ArgumentNullException(nameof(configManager));
             _epaperDataService =
                 epaperDataService ?? throw new ArgumentNullException(nameof(epaperDataService));
             _epaperSocketClient =
                 epaperSocketClient ?? throw new ArgumentNullException(nameof(epaperSocketClient));
 
-            _timeZone = DateTimeZoneProviders.Tzdb[renderingOptions.Value.TimeZone];
+            _timeZone = DateTimeZoneProviders.Tzdb[_configManager.GetTimeZone()];
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var fonts = await LoadFontsAsync(_renderingOptions.AssetsPath);
-            var icons = await LoadIconsAsync(_renderingOptions.AssetsPath);
+            var fonts = await LoadFontsAsync(_configManager.GetAssetsPath());
+            var icons = await LoadIconsAsync(_configManager.GetAssetsPath());
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -54,22 +50,23 @@ namespace ElectricFox.EpaperWorker
 
                 try
                 {
+                    var (Latitude, Longitude) = _configManager.GetCoordinates();
+
                     var state = await _epaperDataService.GetRenderStateAsync(
-                        _openWeatherOptions.Latitude,
-                        _openWeatherOptions.Longitude,
+                        Latitude,
+                        Longitude,
                         stoppingToken
                     );
 
-                    using (var renderer = new GraphicsRenderer(fonts, icons, _timeZone))
-                    {
-                        _logger.LogInformation("Rendering...");
-                        renderer.Render(state);
-                        var data = renderer.GetPixelData().GetAllData().ToArray();
+                    using var renderer = new GraphicsRenderer(fonts, icons, _timeZone);
 
-                        _logger.LogInformation("Sending to display...");
-                        await _epaperSocketClient.SendImage(data);
-                        _logger.LogInformation("Display cycle complete.");
-                    }
+                    _logger.LogInformation("Rendering...");
+                    renderer.Render(state);
+                    var data = renderer.GetPixelData().GetAllData().ToArray();
+
+                    _logger.LogInformation("Sending to display...");
+                    await _epaperSocketClient.SendImage(data);
+                    _logger.LogInformation("Display cycle complete.");
                 }
                 catch (Exception ex)
                 {
@@ -77,7 +74,7 @@ namespace ElectricFox.EpaperWorker
                 }
 
                 await Task.Delay(
-                    TimeSpan.FromSeconds(_renderingOptions.UpdateIntervalSeconds),
+                    TimeSpan.FromSeconds(_configManager.GetUpdateInterval()),
                     stoppingToken
                 );
             }

@@ -2,10 +2,9 @@
   <Project Path="ElectricFox.Epaper.Data/ElectricFox.Epaper.Data.csproj" />
   <Project Path="ElectricFox.Epaper.Layout/ElectricFox.Epaper.Layout.csproj" />
   <Project Path="ElectricFox.Epaper.Rendering/ElectricFox.Epaper.Rendering.csproj" />
+  <Project Path="ElectricFox.Epaper.Shared/ElectricFox.Epaper.Shared.csproj" Id="36e26b36-5811-497b-935d-fbe7c98e3288" />
   <Project Path="ElectricFox.Epaper.Sockets/ElectricFox.Epaper.Sockets.csproj" />
   <Project Path="ElectricFox.EpaperWorker/ElectricFox.EpaperWorker.csproj" />
-  <Project Path="ElectricFox.HomeAssistantClient.IntegrationTests/ElectricFox.HomeAssistantClient.IntegrationTests.csproj" />
   <Project Path="ElectricFox.HomeAssistantClient/ElectricFox.HomeAssistant.csproj" />
-  <Project Path="ElectricFox.HomeAssistantData/ElectricFox.HomeAssistantData.csproj" />
   <Project Path="ElectricFox.OpenWeather/ElectricFox.OpenWeather.csproj" />
 </Solution>

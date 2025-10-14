@@ -10,8 +10,4 @@
     <PackageReference Include="ElectricFox.ConfigManagement" Version="1.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ElectricFox.Epaper.Shared\ElectricFox.Epaper.Shared.csproj" />
-  </ItemGroup>
-
 </Project>

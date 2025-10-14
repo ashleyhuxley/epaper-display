@@ -1,13 +1,15 @@
+using ElectricFox.ConfigManagement;
 using ElectricFox.Epaper.Data;
-using ElectricFox.Epaper.Rendering;
+using ElectricFox.Epaper.Shared;
 using ElectricFox.Epaper.Sockets;
 using ElectricFox.HomeAssistant;
 using ElectricFox.OpenWeather;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using System.Reflection;
+using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Web;
 
 namespace ElectricFox.Epaper.Layout
 {
@@ -16,19 +18,43 @@ namespace ElectricFox.Epaper.Layout
         [STAThread]
         public static void Main()
         {
-            var host = Host.CreateDefaultBuilder()
-                .ConfigureAppConfiguration((context, config) =>
-                {
-                    config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-                    config.AddUserSecrets(Assembly.GetExecutingAssembly());
-                }).ConfigureServices((context, services) =>
-                {
-                    var configRoot = context.Configuration;
+            var logger = LogManager
+                .Setup()
+                .LoadConfigurationFromAppSettings()
+                .GetCurrentClassLogger();
 
-                    services.Configure<OpenWeatherOptions>(configRoot.GetSection("OpenWeather"));
-                    services.Configure<EpaperSocketOptions>(configRoot.GetSection("EpaperSocket"));
-                    services.Configure<EpaperRenderingOptions>(configRoot.GetSection("EpaperRendering"));
-                    services.Configure<HomeAssistantOptions>(configRoot.GetSection("HomeAssistant"));
+            logger.Info($"Starting Epaper.Layout");
+
+            var configBuilder = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .AddEnvironmentVariables();
+
+            IConfigurationRoot configRoot = configBuilder.Build();
+            var configUrl = configRoot.GetValue<string>("ConfigUrl");
+            if (string.IsNullOrEmpty(configUrl))
+            {
+                logger.Error("ConfigUrl is not set in environment variables or appsettings.json");
+                return;
+            }
+
+#if DEBUG
+            const string env = "dev";
+#else
+            const string env = "prod";
+#endif
+
+            var host = Host.CreateDefaultBuilder()
+                .ConfigureServices((context, services) =>
+                {
+                    services.AddSingleton(sp =>
+                    {
+                        var logger = sp.GetRequiredService<ILogger<ConfigManager>>();
+                        var manager = new EpaperConfig(configUrl, env, logger, TimeSpan.FromMinutes(2));
+                        manager.ReloadAsync().GetAwaiter().GetResult();
+                        return manager;
+                    });
+
+                    var configRoot = context.Configuration;
 
                     services.AddTransient<MainForm>();
 
@@ -36,10 +62,6 @@ namespace ElectricFox.Epaper.Layout
                     services.AddTransient<IOpenWeatherClient, OpenWeatherClient>();
                     services.AddTransient<IEpaperSocketClient, EpaperSocketClient>();
                     services.AddTransient<EpaperDataService>();
-
-                    services.AddTransient<IHomeAssistantClientOptions>(s => s.GetRequiredService<IOptions<HomeAssistantOptions>>().Value);
-                    services.AddTransient<IOpenWeatherClientOptions>(s => s.GetRequiredService<IOptions<OpenWeatherOptions>>().Value);
-                    services.AddTransient<IEpaperSocketOptions>(s => s.GetRequiredService<IOptions<EpaperSocketOptions>>().Value);
 
                     services.AddSingleton<HttpClient>();
                 })

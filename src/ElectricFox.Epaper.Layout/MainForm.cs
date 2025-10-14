@@ -1,9 +1,8 @@
 using ElectricFox.BdfSharp;
 using ElectricFox.Epaper.Data;
 using ElectricFox.Epaper.Rendering;
+using ElectricFox.Epaper.Shared;
 using ElectricFox.Epaper.Sockets;
-using ElectricFox.OpenWeather;
-using Microsoft.Extensions.Options;
 using NodaTime;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -13,54 +12,55 @@ namespace ElectricFox.Epaper.Layout
 {
     public partial class MainForm : Form
     {
-        private EpaperDataService _epaperDataService;
+        private readonly EpaperDataService _epaperDataService;
 
-        private IEpaperSocketClient _epaperSocketClient;
+        private readonly IEpaperSocketClient _epaperSocketClient;
 
         private RenderState? _renderState = new();
 
-        private readonly OpenWeatherOptions _openWeatherOptions;
+        private readonly EpaperConfig _configManager;
 
-        private readonly EpaperRenderingOptions _renderingOptions;
-
-        private readonly DateTimeZone _timeZone;
+        private DateTimeZone? _timeZone;
 
         private byte[]? pictureData = null;
 
         private BdfFonts? _fonts;
+
         private Icons? _icons;
 
 
         public MainForm(
-            IOptions<EpaperRenderingOptions> renderingOptions,
-            IOptions<OpenWeatherOptions> openWeatherOptions,
+            EpaperConfig configManager,
             IEpaperSocketClient epaperSocketClient,
             EpaperDataService epaperDataService
         )
         {
             InitializeComponent();
 
-            _openWeatherOptions = openWeatherOptions.Value;
-            _renderingOptions = renderingOptions.Value;
-
+            _configManager = 
+                configManager ?? throw new ArgumentNullException(nameof(configManager));
             _epaperDataService =
                 epaperDataService ?? throw new ArgumentNullException(nameof(epaperDataService));
             _epaperSocketClient =
                 epaperSocketClient ?? throw new ArgumentNullException(nameof(epaperSocketClient));
 
-            _timeZone = DateTimeZoneProviders.Tzdb[renderingOptions.Value.TimeZone];
-
-
             sendButton.Enabled = true;
             renderButton.Enabled = true;
+
+            _configManager.OnConfigReloaded += async (config) =>
+            {
+                _timeZone = DateTimeZoneProviders.Tzdb[_configManager.GetTimeZone()];
+
+                _fonts = await LoadFontsAsync(_configManager.GetAssetsPath());
+                _icons = await LoadIconsAsync(_configManager.GetAssetsPath());
+            };
         }
 
         private async void MainFormLoad(object sender, EventArgs e)
         {
-            propertyGrid.SelectedObject = _renderState;
+            await _configManager.ReloadAsync();
 
-            _fonts = await LoadFontsAsync(_renderingOptions.AssetsPath);
-            _icons = await LoadIconsAsync(_renderingOptions.AssetsPath);
+            propertyGrid.SelectedObject = _renderState;
         }
 
         private void LayoutMouseMove(object sender, MouseEventArgs e)
@@ -135,9 +135,11 @@ namespace ElectricFox.Epaper.Layout
 
         private async void GetDataButtonClick(object sender, EventArgs e)
         {
+            var (Latitude, Longitude) = _configManager.GetCoordinates();
+
             _renderState = await _epaperDataService.GetRenderStateAsync(
-                _openWeatherOptions.Latitude,
-                _openWeatherOptions.Longitude,
+                Latitude,
+                Longitude,
                 CancellationToken.None
             );
             propertyGrid.SelectedObject = _renderState;
