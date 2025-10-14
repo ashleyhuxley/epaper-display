@@ -7,7 +7,7 @@
 		<UserSecretsId>dotnet-ElectricFox.EpaperWorker-111c5abc-4579-4188-afc3-eece61a08562</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<ContainerRepository>fionasapphire/epaper-display</ContainerRepository>
-		<ContainerFamily>jammy-chiseled-extra</ContainerFamily>
+		<ContainerFamily>noble-chiseled-extra</ContainerFamily>
 		<ContainerRegistry>docker.io</ContainerRegistry>
 		<InvariantGlobalization>false</InvariantGlobalization>
 	</PropertyGroup>
