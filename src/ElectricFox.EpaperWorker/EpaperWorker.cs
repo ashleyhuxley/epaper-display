@@ -91,7 +91,8 @@ namespace ElectricFox.EpaperWorker
                 TamzenForPowerline10x20b = await BdfFont.LoadAsync(Path.Join(basePath, "/Fonts/TamzenForPowerline10x20b.bdf")),
                 Generic10x20 = await BdfFont.LoadAsync(Path.Join(basePath, "/Fonts/10x20.bdf")),
                 Tamzen7x14b = await BdfFont.LoadAsync(Path.Join(basePath, "/Fonts/Tamzen7x14b.bdf")),
-                Generic5x8 = await BdfFont.LoadAsync(Path.Join(basePath, "/Fonts/5x8.bdf")),
+                Generic5x8 = await BdfFont.LoadAsync(Path.Join(basePath, "/Fonts/5x8.bdf")),,
+                StreamlineAll = await BdfFont.LoadAsync(Path.Join(basePath, "/Fonts/streamline_all.bdf"))
             };
         }
 
