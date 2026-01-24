@@ -179,23 +179,26 @@ namespace ElectricFox.Epaper.Rendering
 
         private void RenderTrash(IImageProcessingContext ctx, Point pos)
         {
-            var binTypes = _state.Bins.Split(',').Select(b => b.Trim());
-            int x = pos.X;
-            foreach (var binType in binTypes)
-            {
-                int binIcon = binType.ToLower() switch
-                {
-                    "trash" => 335,
-                    "recycling" => 455,
-                    "garden" => 223,
-                    "food" => 271,
-                    "glass" => 638,
-                    _ => throw new InvalidOperationException("Unknown bin type"),
-                };
+            _image.DrawTextBdf("Bins:", _fonts.Spleen8x16, new Point(pos.X, pos.Y + 10));
+            pos.X += _fonts.Spleen8x16.MeasureString("Bins:").Width + 10;
 
-                var glyphs = new List<int> { binIcon };
-                _image.DrawTextBdf(glyphs, _fonts.StreamlineAll, new Point(pos.X + x, pos.Y + 4), Color.Black);
-                x += 40;
+            Dictionary<string, int> binIcons = new()
+            {
+                { "trash", 335 },
+                { "recycling", 455 },
+                { "garden", 223 },
+                { "food", 271 },
+                { "glass", 638 },
+            };
+
+            var scheduledBins = _state.Bins.Split(',').Select(b => b.Trim().ToLower()).ToList();
+
+            foreach (var icon in binIcons)
+            {
+                var colour = scheduledBins.Contains(icon.Key) ? Color.Red : Color.Black;
+                var glyphs = new List<int> { icon.Value };
+                _image.DrawTextBdf(glyphs, _fonts.StreamlineAll, new Point(pos.X, pos.Y + 4), colour);
+                pos.X += 40;
             }
         }
 
