@@ -179,13 +179,24 @@ namespace ElectricFox.Epaper.Rendering
 
         private void RenderTrash(IImageProcessingContext ctx, Point pos)
         {
-            ctx.DrawImage(_icons.Trash, new Point(pos.X, pos.Y), 1);
+            var binTypes = _state.Bins.Split(',').Select(b => b.Trim());
+            int x = pos.X;
+            foreach (var binType in binTypes)
+            {
+                int binIcon = binType.ToLower() switch
+                {
+                    "trash" => 335,
+                    "recycling" => 455,
+                    "garden" => 223,
+                    "food" => 271,
+                    "glass" => 638,
+                    _ => throw new InvalidOperationException("Unknown bin type"),
+                };
 
-            _image.DrawTextBdf(
-                _state.Bins,
-                _fonts.TamzenForPowerline10x20b,
-                new Point(pos.X + 31, pos.Y + 8)
-            );
+                var glyphs = new List<int> { binIcon };
+                _image.DrawTextBdf(glyphs, _fonts.StreamlineAll, new Point(pos.X + x, pos.Y + 4), Color.Black);
+                x += 40;
+            }
         }
 
         private void RenderRoomStates(Point pos)

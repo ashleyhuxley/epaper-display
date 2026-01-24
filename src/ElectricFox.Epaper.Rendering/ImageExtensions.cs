@@ -6,9 +6,42 @@ namespace ElectricFox.Epaper.Rendering
 {
     public static class ImageExtensions
     {
-        public static void DrawTextBdf(this Image<Rgba32> image, string text, BdfFont font, Point pos, Color color)
+        public static void DrawTextBdf(
+            this Image<Rgba32> image,
+            string text,
+            BdfFont font,
+            Point pos
+        )
+        {
+            image.DrawTextBdf(text, font, pos, Color.Black);
+        }
+
+        public static void DrawTextBdf(
+            this Image<Rgba32> image,
+            IEnumerable<int> glyphs,
+            BdfFont font,
+            Point pos,
+            Color color
+        )
+        {
+            var map = font.RenderBitmap(glyphs, GlyphLookupOption.EncodingStrict);
+            DrawBdfMap(image, map, pos, color);
+        }
+
+        public static void DrawTextBdf(
+            this Image<Rgba32> image,
+            string text,
+            BdfFont font,
+            Point pos,
+            Color color
+        )
         {
             var map = font.RenderBitmap(text);
+            DrawBdfMap(image, map, pos, color);
+        }
+
+        private static void DrawBdfMap(Image<Rgba32> image, bool[,] map, Point pos, Color color)
+        {
             var fwidth = map.GetLength(0);
             var fheight = map.GetLength(1);
 
@@ -25,11 +58,6 @@ namespace ElectricFox.Epaper.Rendering
                     }
                 }
             }
-        }
-
-        public static void DrawTextBdf(this Image<Rgba32> image, string text, BdfFont font, Point pos)
-        {
-            image.DrawTextBdf(text, font, pos, Color.Black);
         }
 
         public static PaperData GetPixelData(this Image<Rgba32> image)

@@ -12,5 +12,6 @@ namespace ElectricFox.Epaper.Rendering
         public required BdfFont Generic10x20 { get; init; }
         public required BdfFont Tamzen7x14b { get; init; }
         public required BdfFont Generic5x8 { get; init; }
+        public required BdfFont StreamlineAll { get; init; }
     }
 }
